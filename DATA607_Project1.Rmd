@@ -1,0 +1,191 @@
+---
+title: "DATA606_Project1"
+author: " Jered Ataky"
+date: "9/17/2020"
+output: html_document
+---
+
+### Libraries
+
+```{r}
+library(stringr)
+library(tidyverse)
+library(downloader)
+library(readr)
+```
+
+### Get text file from GitHub repository
+
+```{r import data}
+
+# Download text file to the local machine
+
+url <- "https://raw.githubusercontent.com/jnataky/DATA606project1/master/tournamentinfo.txt" 
+chess_txt <- "tournamentinfo.txt"
+
+downloader::download(url, chess_txt)
+
+getwd()
+
+```
+
+
+```{r}
+
+# First I'll read in the Chess txt file that I placed on Github.
+# I want to note that each data point is separated by four spaces.
+
+#chess <- read_table(chess_txt,skip = 10)
+
+#colnames(chess)
+
+#view(chess)
+
+```
+
+
+```{r}
+
+chess <- readLines(chess_txt)
+chess
+
+```
+
+
+```{r}
+
+# Patterns
+
+pn <- "\\w+[^USCF|a-z] ?\\w+ \\w+"  # Player's name pattern
+ps <- "(?:^|\\W)ON | MI | OH(?:$|\\W)" # Player's state pattern
+pp <- "\\d\\.\\d"   # Player's total points pattern
+
+
+# Extract columns names
+
+PlayerName <- unlist(str_extract_all(chess, pn))
+
+PlayerState <- unlist (str_extract_all(chess, ps))
+
+PlayerPoints <- unlist(str_extract_all(chess, pp ))
+
+
+
+
+
+```
+
+
+
+```{r Pre-Rating}
+
+#Patterns
+
+p1 <- "(R:\\s*)(\\d+)"  # Player's pre-rating pattern 1
+p2 <- "(\\d+)" # Player's pre-rating pattern 2
+
+PreRating <- unlist(str_extract_all(chess, p1))
+
+PreRating <- unlist(str_extract_all(PreRating, p2))
+
+PreRating <- as.numeric(PreRating) # String to numeric
+
+PreRating
+```
+
+
+```{r Average-Rating}
+
+# Patterns
+
+A1 <- "\\|[0-9].*"  # Average rating pattern 1
+A2 <- "\\s\\d{1,2}"  # Average rating pattern 2
+
+AveRating <- unlist(str_extract_all(chess, A1))
+
+AveRating <- str_replace_all(AveRating, "\\s{1,2}\\|","0|") # Replace empty by 0
+AveRating <- (str_extract_all(AveRating, A2))
+
+AveRating
+
+
+```
+
+```{r Average-Rating-of-the-opponents}
+
+# Get AveRating and write it as a matrix
+
+AveRating_matrix <- matrix(unlist(AveRating),  byrow= TRUE, nrow = length(AveRating))
+
+AveRating_matrix
+
+```
+
+```{r Average-Rating-of-the-opponents}
+
+# Get AveRating and write it as a matrix
+
+AveRating_matrix_t <- t(apply(AveRating_matrix, 1, as.numeric))
+
+AveRating_matrix_t
+
+```
+
+
+```{r Average-Rating-of-the-opponents}
+
+# Get AveRating and write it as a matrix
+
+
+for (r in 1:nrow(AveRating_matrix_t)) {
+  
+  for (c in 1:ncol(AveRating_matrix_t)) {
+    
+    if (AveRating_matrix_t[r,c] == 0){
+      
+      AveRating_matrix_t[r,c] == NA
+    } else {
+      AveRating_matrix_t[r,c] <- PreRating[AveRating_matrix_t[r,c]]
+    }
+    
+  }
+  
+  
+  
+}
+  
+
+```
+
+
+
+```{r}
+OpponentsAvg <- c(rowMeans(AveRating_matrix_t, na.rm = TRUE))
+
+OpponentsAvg
+
+```
+
+```{r}
+results <- data.frame(PlayerName, PlayerPoints, PlayerState, PreRating, OpponentsAvg)
+colnames(results) <- c("Player's Name", "Player's State", "Total Number of Point", "Player's Pre-Rating", "Opponents Pre-Rating Avg")
+
+```
+
+
+```{r print-solution-df}
+
+results
+
+```
+
+```{r Export-csv}
+
+# Export to csv
+
+write.csv(results, "chessgame.csv", row.names = FALSE )
+
+```
+
+
+
