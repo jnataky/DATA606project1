@@ -1,0 +1,337 @@
+---
+title: "Chapter 6 - Inference for Categorical Data"
+author: "Jered Ataky"
+date: "` r Sys.Date()`"
+output:
+    pdf_document:
+        extra_dependencies: ["geometry", "multicol", "multirow", "xcolor"]
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+**2010 Healthcare Law.** (6.48, p. 248) On June 28, 2012 the U.S. Supreme Court upheld the much debated 2010 healthcare law, declaring it constitutional. A Gallup poll released the day after this decision indicates that 46% of 1,012 Americans agree with this decision. At a 95% confidence level, this sample has a 3% margin of error. Based on this information, determine if the following statements are true or false, and explain your reasoning.
+
+(a) We are 95% confident that between 43% and 49% of Americans in this sample support the decision of the U.S. Supreme Court on the 2010 healthcare law.
+(b) We are 95% confident that between 43% and 49% of Americans support the decision of the U.S. Supreme Court on the 2010 healthcare law.
+(c) If we considered many random samples of 1,012 Americans, and we calculated the sample proportions of those who support the decision of the U.S. Supreme Court, 95% of those sample proportions will be between 43% and 49%.
+(d) The margin of error at a 90% confidence level would be higher than 3%.
+
+
+## Solution 1
+
+(a) False. Confidence interval is plausible range of values 
+for the population parameter not the sample statistic.
+
+(b) True. Confidence interval is plausible range of values 
+for the population parameter which in this case is Americans.
+
+(c) False. Per central limit theorem, we know that the sampling distribution of 
+the sample mean is approximately normal meaning that those random samples would
+also be normal and mostly contain the true population proportion but their 
+confidence intervals (or 95% of them) won't necessary be exactly the same 
+as this first sample. They will be somewhere around, maybe a bit more or less 
+as we have shown that in previous lab.
+
+
+(d) False. Decreasing the confidence level decreases the error bound 
+and makes the confidence interval narrower.Thus, 90% confidence level would 
+have the margin of error lower than 3%.
+
+
+
+--------------------------------------------------------------------------------
+
+\clearpage
+
+**Legalization of marijuana, Part I.** (6.10, p. 216) The 2010 General Social Survey asked 1,259 US residents: "Do you think the use of marijuana should be made legal, or not" 48% of the respondents said it should be made legal.
+
+(a) Is 48% a sample statistic or a population parameter? Explain.
+(b) Construct a 95% confidence interval for the proportion of US residents who think marijuana should be made legal, and interpret it in the context of the data.
+(c) A critic points out that this 95% confidence interval is only accurate if the statistic follows a normal distribution, or if the normal model is a good approximation. Is this true for these data? Explain.
+(d) A news piece on this survey's findings states, "Majority of Americans think marijuana should be legalized." Based on your confidence interval, is this news piece's statement justified?
+
+
+## Solution 2
+
+
+(a) Sample statistic. 48% represents the proportion of the sample (1259) of
+US residents and not the entire population of US residents.
+
+(b) 
+
+```{r}
+
+p_hat <- 0.48
+n <- 1259
+
+SE <- sqrt(p_hat * (1 - p_hat) / n) # Standard error
+
+z <- qnorm(0.025) # Z*
+
+MOE <- abs(z * SE)  # Margin of error
+
+p_i <- p_hat - MOE  # lower boundary
+p_i
+p_u <- p_hat + MOE  # upper boundary
+p_u
+
+```
+
+We are 95% confident that between 45.2% and 50.8% of US residents think
+the use of marijuana should be made legal.
+
+
+(c) Let think of this problem as a bernouilli distribution first, and we know 
+that under certain conditions, bernouilli distribution allows us to use 
+a normal approximation.
+Let explore it: n * p_hat = 604.32 >= 10 & n * (1-p_hat) = 654.68 >= 10 
+
+With this sample size, we should use a normal distribution.
+
+Second, central limit theorem states that the sampling distribution of the 
+sample mean is approximately normal. Thus, all different samples of that size
+would follow that distribution although the 95% confidence interval wouldn't be 
+exactly the same but it is going to be something around the one we calculated,
+and that is the case for these data. 
+ 
+(d) This news piece's statement is not justified since the confidence doesn't 
+include 75% - 100% of US residents.
+The confidence interval doesn't even include only 
+the half of the Americans and above.
+
+
+
+--------------------------------------------------------------------------------
+
+\clearpage
+
+**Legalize Marijuana, Part II.** (6.16, p. 216) As discussed in Exercise above, the 2010 General Social Survey reported a sample where about 48% of US residents thought marijuana should be made legal. If we wanted to limit the margin of error of a 95% confidence interval to 2%, about how many Americans would we need to survey?
+
+
+## Solution 3
+
+```{r}
+
+MOE1 <- 0.02
+
+# Find new SE1 from  MOE <- abs(z * SE)  
+
+SE1 <- MOE1 / abs(z)
+
+# Find new n from SE <- sqrt(p_hat * (1 - p_hat) / n)
+
+n_new <- (p_hat * (1 - p_hat)) / ((SE1)^2)
+n_new
+
+```
+
+If we want a margin of error of 2%, we would need to survey about 2397 Americans.
+
+
+
+--------------------------------------------------------------------------------
+
+\clearpage
+
+**Sleep deprivation, CA vs. OR, Part I.** (6.22, p. 226) According to a report on sleep deprivation by the Centers for Disease Control and Prevention, the proportion of California residents who reported insuffient rest or sleep during each of the preceding 30 days is 8.0%, while this proportion is 8.8% for Oregon residents. These data are based on simple random samples of 11,545 California and 4,691 Oregon residents. Calculate a 95% confidence interval for the difference between the proportions of Californians and Oregonians who are sleep deprived and interpret it in context of the data.
+
+
+## Solution 4
+
+```{r}
+
+# Let p1 be the proportion for California residents 
+# Let p2 be the proportion for Oregon residents
+
+z <- qnorm(0.025) # Z*
+
+n1 <- 11545
+n2 <- 4691
+
+p1 <- 0.08
+p2 <- 0.088
+
+d <- p1 - p2  # difference between the proportions of CA and OR residents
+
+se <- sqrt ((p1 * (1 - p1) / n1) + (p2 * (1 - p2) / n2)) # standard error
+moe <- abs(z) * se # margin of error
+
+lower_ci <- d - moe
+lower_ci
+upper_ci <- d + moe
+upper_ci
+
+```
+
+95% confidence interval = (-1.75%, 0.15%)
+
+We are 95% confident that the difference between the proportions of 
+Californians and Oregonians who are sleep deprived is between -1.75% and 0.15%.
+
+--------------------------------------------------------------------------------
+
+\clearpage
+
+**Barking deer.** (6.34, p. 239) Microhabitat factors associated with forage and bed sites of barking deer in Hainan Island, China were examined from 2001 to 2002. In this region woods make up 4.8% of the land, cultivated grass plot makes up 14.7% and deciduous forests makes up 39.6%. Of the 426 sites where the deer forage, 4 were categorized as woods, 16 as cultivated grassplot, and 61 as deciduous forests. The table below summarizes these data.
+
+\begin{center}
+\begin{tabular}{c c c c c}
+Woods	& Cultivated grassplot	& Deciduous forests	 & Other & Total \\
+\hline 
+4		& 16					& 61			     & 345	 & 426 \\
+\end{tabular}
+\end{center}
+
+(a) Write the hypotheses for testing if barking deer prefer to forage in certain habitats over others.
+(b) What type of test can we use to answer this research question?
+(c) Check if the assumptions and conditions required for this test
+are satisfied.
+(d) Do these data provide convincing evidence that barking deer pre-
+fer to forage in certain habitats over others? Conduct an appro- priate hypothesis test to answer this research question.
+
+
+## Solution 5
+
+
+(a) H0: There is no preference to forage by barking deer in 
+certain habitats over others.
+      (no relationship between barking deer forage and habitats type)
+        
+  H1: There is preference to forage by barking deer 
+  in certain habitats over others.
+
+(b) In this research question , we can use a Chi-Squared test.
+
+(c) - **Independence**: random assignment and each case only contributes to one
+cell in the table...
+    - **Sample size**: Each cell has at least 5 expected cases
+
+Assumptions and conditions satisfied.
+
+(d)
+
+```{r}
+
+# Chi-Square Test
+
+
+obs <- c(4, 16, 67, 345) # Obs. values
+
+chisq.test(obs)
+
+# Note that p_value will be the same 
+# as we calculate with the value or probability of each of them
+```
+ p_value is approx = 0.
+ 
+The data provide convincing evidence that barking deer pre-
+fer to forage in certain habitats over others.
+We reject the null hypothesis.
+
+
+
+--------------------------------------------------------------------------------
+
+\clearpage
+
+
+**Coffee and Depression.** (6.50, p. 248) Researchers conducted a study investigating the relationship between caffeinated coffee consumption and risk of depression in women. They collected data on 50,739 women free of depression symptoms at the start of the study in the year 1996, and these women were followed through 2006. The researchers used questionnaires to collect data on caffeinated coffee consumption, asked each individual about physician-diagnosed depression, and also asked about the use of antidepressants. The table below shows the distribution of incidences of depression by amount of caffeinated coffee consumption.
+
+\small
+\begin{center}
+\begin{tabular}{l  l rrrrrr}
+	&  \multicolumn{1}{c}{}		& \multicolumn{5}{c}{\textit{Caffeinated coffee consumption}} \\
+\cline{3-7}
+	&		& $\le$ 1	& 2-6	& 1	& 2-3	& $\ge$ 4	&   \\
+	&		& cup/week	& cups/week	& cup/day	& cups/day	& cups/day	& Total  \\
+\cline{2-8}
+\textit{Clinical} & Yes	& 670 & \fbox{\textcolor{blue}{373}}	& 905	& 564	& 95 	& 2,607 \\
+\textit{depression}	& No& 11,545	& 6,244	& 16,329	& 11,726	& 2,288 	& 48,132 \\
+\cline{2-8}
+				& Total	& 12,215	& 6,617 & 17,234	& 12,290	& 2,383 	& 50,739 \\
+\cline{2-8}
+\end{tabular}
+\end{center}
+
+
+(a) What type of test is appropriate for evaluating if there is an association between coffee intake and depression?
+(b) Write the hypotheses for the test you identified in part (a).
+(c) Calculate the overall proportion of women who do and do not suffer from depression.
+(d) Identify the expected count for the highlighted cell, and calculate the contribution of this cell to the test statistic, i.e. ($Observed - Expected)^2 / Expected$).
+(e) The test statistic is $\chi^2=20.93$. What is the p-value?
+(f) What is the conclusion of the hypothesis test?
+(g) One of the authors of this study was quoted on the NYTimes as saying it was "too early to recommend that women load up on extra coffee" based on just this study. Do you agree with this statement? Explain your reasoning.
+
+
+## Solution 7
+
+
+(a) Chi-Square test is appropriate for evaluating if there is an association between coffee intake and depression
+
+(b) H0: There is no association between coffee intake and depression
+
+  H1: There is an association between coffee intake and depression
+
+
+(c)
+
+```{r}
+
+p_women_dep <- 2607 / 50739
+p_women_dep
+
+p_women_no_dep <- 1 - p_women_dep
+p_women_no_dep
+
+
+```
+
+The overall proportion of women who do suffer of depression is ~ 5.14%
+and women who do not suffer from depression is ~ 94.86%
+
+
+(d)
+
+```{r}
+
+exp <- p_women_dep * 6617
+obs1 <- 373
+
+cnt <- (exp - obs1)^2 / exp
+
+cnt
+
+
+```
+
+
+(e)
+
+```{r}
+
+x_square <- 20.93
+df_s <- 4
+
+p_value <- pchisq(x_square, df_s, lower.tail = FALSE)
+p_value
+
+```
+
+
+(f)
+
+The data provide convincing evidence that there is 
+an association between coffee intake and depression.
+
+We reject the null hypothesis.
+
+
+(g)
+
+I agree with that author. Although there is a relation between coffee intake
+and depression,  would argue that there is many factors to take into 
+consideration when it comes to clinical depression, and that relationship
+between coffee intake and depression might not be that stronger
+to recommend that women load up on extra coffee, so it is too early.
