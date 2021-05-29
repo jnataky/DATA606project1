@@ -1,0 +1,199 @@
+---
+title: "Lab 1: Intro to R"
+author: "Jered Ataky"
+date: "9/6/2020"
+output: openintro::lab_report
+---
+
+```{r load-packages, message=FALSE}
+library(tidyverse)
+library(openintro)
+```
+
+### Exercise 1
+Extract counts of girls baptized
+
+```{r view-girls-counts}
+arbuthnot$girls
+```
+
+**Data Visualization**
+
+```{r}
+
+ggplot(data = arbuthnot, aes(x = year, y = girls)) + geom_point()
+
+
+```
+
+
+
+***Plot with line***
+
+```{r}
+
+ggplot(data = arbuthnot, aes(x=year, y=girls)) + geom_line()
+
+```
+
+
+
+### Exercise 2
+
+Apparent trend in the number of girls baptized
+
+```{r trend-girls}
+
+# Adding new variable to the data frame
+
+arbuthnot <- arbuthnot %>%
+  mutate(total = boys + girls)
+
+# Plot for the trend
+
+ggplot(data = arbuthnot, aes(x=year, y= total)) + geom_line()
+```
+```{r}
+# Create two new variables on data frame
+
+arbuthnot <- arbuthnot %>%
+  mutate(boy_to_girl_ratio = boys / girls)
+
+arbuthnot <- arbuthnot %>%
+  mutate(boy_ratio = boys /total)
+
+```
+
+
+### Exercise 3
+
+***Plot proportion of boys over time***
+
+```{r plot-prop-boys-arbuthnot}
+ggplot(data = arbuthnot, aes(x = year, y = boy_ratio)) + geom_line()
+
+```
+
+***Add a data frame with logical data***
+```{r}
+arbuthnot <- arbuthnot %>%
+  mutate(more_boys = boys > girls)
+
+```
+
+***Find min and max values of columns***
+```{r}
+
+arbuthnot %>%
+  summarise(min = min(boys), max = max(boys))
+```
+### Exercise 4
+
+Explore new data frame
+
+```{r dim-present}
+# Show years included in the data set
+present$year
+```
+The present data set includes years from 1940 to 2002.
+
+```{r}
+# Dimensions of data frame
+dim.data.frame(present)
+
+```
+
+```{r}
+# Retrieve columns names
+colnames(present)
+
+```
+### Exercise 5
+
+Compare Arbuthnot's and present data set counts.
+
+```{r count-compare}
+# Arbuthnot's dim
+
+arbuthnot$year
+```
+
+```{r}
+
+# Arbuthnot dim
+
+dim.data.frame(arbuthnot)
+```
+
+Arbuthnot data set includes year from 1629 to 1710.
+Thus, Arbuthnot data set has 81 different years
+while The present data set has 62 different years.
+
+They are not of a similar magnitude.
+Arbuthnot data set is 19 years longer than present data set.
+
+
+### Exercise 6
+
+Proportion of boys over time.
+
+```{r plot-prop-boys-present}
+# Create 2 new variables in present data set
+
+present <- present %>%
+  mutate(total = boys + girls)
+
+present <- present %>%
+  mutate(boy_ratio = boys / total)
+
+# Plot proportion of boys born over time for present data set
+
+ggplot(data = present, aes(x = year, y = boy_ratio)) + geom_line()
+
+```
+
+
+The proportion of born over time declines from 1940 to late 60's then increases
+a bit between late 60's to mid 70's, then start decreasing again.
+Overall, we can say that the proportion of boys over time decreases.
+
+
+***Boys to girls ratio in US***
+
+```{r more_boys}
+
+present <- present %>%
+  mutate(more_boys = boys > girls)
+
+present$more_boys
+```
+
+
+As we can see, that is true. Arbuthnot's observation about boys being born
+in greater proportion than girls holds up in the U.S as well.
+
+
+```{r prop boys-girls present}
+
+present <- present %>%
+  mutate(boy_to_girl_ratio = boys / girls)
+
+ggplot(data = present, aes(x = year, y = boy_to_girl_ratio)) + geom_line()
+
+
+```
+
+
+
+### Exercise 7
+
+Most number of birth in U.S
+
+```{r find-max-total}
+present %>%
+  arrange(desc(total))
+
+```
+
+
+As we can see from the above, the most total number of births in U.S was in 1961.
